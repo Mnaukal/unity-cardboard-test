@@ -1,2 +1,4 @@
 * Bundle Identifier
 * Resolution and Presentation - Orientation
+* 
+* Reticle
