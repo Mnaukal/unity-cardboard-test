@@ -22,7 +22,10 @@ public class Walk : MonoBehaviour {
     {
         if(Walking)
         {
-            transform.Translate(cameraObject.transform.forward * speed);
+            Vector3 direction = cameraObject.transform.forward;
+            direction.y = 0f;
+            //Debug.DrawLine(transform.position, transform.position + direction);
+            transform.Translate(direction * speed);
         }
     }
 }
