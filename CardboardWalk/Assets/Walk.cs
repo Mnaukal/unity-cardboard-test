@@ -1,14 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Walk : MonoBehaviour {
 
     public bool Walking = false;
     public float speed = 0.01f;
     public GameObject cameraObject;
+    public Text ButtonText;
+    public Image ClickLoading, Button;
+    public Color NormalColor, HighlightColor;
+    public float clickTime = 1f;
+    public Canvas canvas;
+    private Rigidbody rigidbody;
+    private float clickTimeRemaining = -1f;
 
-	public void StartStop(bool start)
+    private void Start()
+    {
+        rigidbody = GetComponent<Rigidbody>();
+    }
+
+    public void StartStop(bool start)
     {
         Walking = start;
     }
@@ -20,12 +33,44 @@ public class Walk : MonoBehaviour {
 
     private void FixedUpdate()
     {
+        canvas.GetComponent<RectTransform>().rotation = Quaternion.Euler(90, 0, -cameraObject.transform.rotation.eulerAngles.y);
+
         if(Walking)
         {
             Vector3 direction = cameraObject.transform.forward;
             direction.y = 0f;
-            //Debug.DrawLine(transform.position, transform.position + direction);
-            transform.Translate(direction * speed);
+            rigidbody.MovePosition(transform.position + direction * speed);
         }
+    }
+
+    private void Update()
+    {
+        if(clickTimeRemaining > 0f)
+        {
+            clickTimeRemaining -= Time.deltaTime;
+            ClickLoading.fillAmount = 1 - clickTimeRemaining / clickTime;
+
+            if (clickTimeRemaining <= 0f)
+                ToggleWalk();
+        }
+    }
+
+    public void PointerEnter()
+    {
+        Button.color = HighlightColor;
+        clickTimeRemaining = clickTime;
+    }
+
+    public void PointerExit()
+    {
+        Button.color = NormalColor;
+        clickTimeRemaining = -1f;
+        ClickLoading.fillAmount = 0f;
+        ButtonText.text = Walking ? "STOP" : "GO";
+    }
+
+    public void CallDebug(string message)
+    {
+        Debug.Log(message);
     }
 }
