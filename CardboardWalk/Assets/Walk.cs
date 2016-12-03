@@ -13,6 +13,13 @@ public class Walk : MonoBehaviour {
     public Color NormalColor, HighlightColor;
     public float clickTime = 1f;
     public Canvas canvas;
+
+    [Header("Head Bobbing")]
+    public float frequency;
+    public float amplitudeX, amplitudeY;
+    private Vector3 OriginalPosition;
+    private float BobbingDistance = 0f;
+
     private Rigidbody rigidbody;
     private float clickTimeRemaining = -1f;
 
@@ -40,6 +47,10 @@ public class Walk : MonoBehaviour {
             Vector3 direction = cameraObject.transform.forward;
             direction.y = 0f;
             rigidbody.MovePosition(transform.position + direction * speed);
+
+            BobbingDistance += direction.magnitude * speed;
+            cameraObject.transform.localPosition = cameraObject.transform.rotation * new Vector3(amplitudeX * Mathf.Sin(BobbingDistance * frequency), amplitudeY * Mathf.Sin(BobbingDistance * frequency * 2), 0f);
+            Debug.DrawLine(cameraObject.transform.position, cameraObject.transform.position + new Vector3(0.1f,0,0), Color.red, 2f);
         }
     }
 
