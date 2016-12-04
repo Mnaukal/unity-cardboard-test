@@ -64,6 +64,26 @@ public class Walk : MonoBehaviour {
             if (clickTimeRemaining <= 0f)
                 ToggleWalk();
         }
+
+        // Input
+        if(GvrViewer.Instance.Triggered) // trigger button
+        {
+            Debug.Log("Triggered");
+            ToggleWalk();
+            ButtonText.text = Walking ? "STOP" : "GO";
+        }
+
+        if (GvrViewer.Instance.BackButtonPressed) // back button
+        {
+            Debug.Log("Back");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
+        }
+
+        if (GvrViewer.Instance.Tilted) // tilt head (back button)
+        {
+            Debug.Log("Tilted");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
+        }
     }
 
     public void PointerEnter()

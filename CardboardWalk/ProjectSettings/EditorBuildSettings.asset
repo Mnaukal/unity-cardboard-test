@@ -6,6 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SimpleTownLite/_Demo/Demo.unity
+    path: Assets/menu.unity
+  - enabled: 1
+    path: Assets/walk.unity
   - enabled: 1
     path: Assets/GoogleVR/DemoScenes/HeadsetDemo/DemoScene.unity
