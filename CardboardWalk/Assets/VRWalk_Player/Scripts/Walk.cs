@@ -5,103 +5,107 @@ using UnityEngine.UI;
 
 public class Walk : MonoBehaviour {
 
-    public bool Walking = false;
-    public float speed = 0.01f;
-    public GameObject cameraObject;
-    public Text ButtonText;
-    public Image ClickLoading, Button;
-    public Color NormalColor, HighlightColor;
-    public float clickTime = 1f;
-    public Canvas canvas;
+    [Header("Obecné vlastnosti")]
+    public bool HracJde = false;        // true, když hráč jde; false, když stojí na místě
+    public float RychlostPohybu = 1f;
+    [Header("Uživatelské rozhraní")]
+    public Color NormalniBarvaTlacitka, ZvyraznenaBarvaTlacitka;
+    public float CasProPrepnutiTlacitka = 1f;   // jak dlouho musí uživatel koukat na tlačítko, aby ho přepl
+    public string TextStop = "STOP", TextJdi = "JDI";
+    [Header("Kývání hlavy")]
+    public float Frekvence;
+    public float VychylkaVodorovne, VychylkaSvisle;
+    [Header("Odkazy na objekty - neměnit")]
+    public GameObject GameObject_Kamera;
+    public Text Text_NaTlacitku;
+    public Image Image_NacitaniKliknuti, Image_Tlacitko;
+    public Canvas Canvas;    
 
-    [Header("Head Bobbing")]
-    public float frequency;
-    public float amplitudeX, amplitudeY;
-    private Vector3 OriginalPosition;
-    private float BobbingDistance = 0f;
-
-    private Rigidbody rigidbody;
-    private float clickTimeRemaining = -1f;
+    // další proměnné
+    private float UslaVzdalenost = 0f;  // kolik už hráč ušel - nutné pro kývání hlavou
+    private Rigidbody rigidbody;        // komponent v Unity pro reakce na fyzikální engine
+    private float CasDoKliknuti = -1f;  // jak dlouho ještě musí uživatel koukat na tlačítko, aby ho přepl
 
     private void Start()
     {
+        // získat odkaz na rigidbody
         rigidbody = GetComponent<Rigidbody>();
     }
 
+    /// <summary>
+    /// Funkce pro zapnutí a vypnutí chůze
+    /// </summary>
+    /// <param name="start">true spustí chůzi, false zastaví</param>
     public void StartStop(bool start)
     {
-        Walking = start;
+        HracJde = start;
     }
 
-    public void ToggleWalk()
+    /// <summary>
+    /// Funkce pro přepnutí stavu chůze - když hráč jde, zavoláním této funkce zastaví a naopak
+    /// </summary>
+    public void PrepnoutChuzi()
     {
-        Walking = !Walking;
+        HracJde = !HracJde;
     }
 
+    // interní funkce v Unity, která se spouští 50 krát za sekundu (ve výchozím nastavení)
     private void FixedUpdate()
     {
-        canvas.GetComponent<RectTransform>().rotation = Quaternion.Euler(90, 0, -cameraObject.transform.rotation.eulerAngles.y);
-
-        if(Walking)
+        // otočí tlačítko, aby byl text správným směrem
+        Canvas.GetComponent<RectTransform>().rotation = Quaternion.Euler(90, 0, -GameObject_Kamera.transform.rotation.eulerAngles.y);
+        
+        // pokud se hráč chce pohybovat
+        if(HracJde)
         {
-            Vector3 direction = cameraObject.transform.forward;
-            direction.y = 0f;
-            rigidbody.MovePosition(transform.position + direction * speed);
+            Vector3 smer = GameObject_Kamera.transform.forward;    // aktuální směr pohledu hráče
+            smer.y = 0f;                                           // ignorujeme osu Y - necheme se pohybovat nahoru a dolů
+            // posuneme hráče o násobek směru pohybu (vektor směru násobíme rychlostí - tím se mění jen jeho velikost, ale ne směr), násobení Time.fixedDeltaTime kompenzuje to, že tento posun provádíme 50 krát za sekundu
+            rigidbody.MovePosition(transform.position + smer * RychlostPohybu * Time.fixedDeltaTime);  
 
-            BobbingDistance += direction.magnitude * speed;
-            cameraObject.transform.localPosition = cameraObject.transform.rotation * new Vector3(amplitudeX * Mathf.Sin(BobbingDistance * frequency), amplitudeY * Mathf.Sin(BobbingDistance * frequency * 2), 0f);
-            Debug.DrawLine(cameraObject.transform.position, cameraObject.transform.position + new Vector3(0.1f,0,0), Color.red, 2f);
+            UslaVzdalenost += smer.magnitude * RychlostPohybu;  // zvýšíme ušlou vzdálenost
+
+            // kývání hlavy - náročnější kód
+            GameObject_Kamera.transform.localPosition =     // nastavíme pozici kamery (hlavy)
+                GameObject_Kamera.transform.rotation * new Vector3(     // násobení rotací otočí vektor směrem aktuálního pohledu
+                    VychylkaVodorovne * Mathf.Sin(UslaVzdalenost * Frekvence),  // aktuální vodorovná výchylka je závislá na funcki sinus ušlé vzdálenosti
+                    VychylkaSvisle * Mathf.Sin(UslaVzdalenost * Frekvence * 2), // aktuální svislá výchylka je dvakrát častější než vodorovná (jeden krok na levé noze, další na pravé)
+                    0f);
         }
     }
 
+    // interní funkce Unity, která se spoušní při každém snímků
     private void Update()
     {
-        if(clickTimeRemaining > 0f)
+        // pokud koukáme na tlačítko - CasDoKliknuti je běžně menší než 0, na větší číslo ho nastavujeme když se začneme koukat na tlačítko
+        if (CasDoKliknuti > 0f)
         {
-            clickTimeRemaining -= Time.deltaTime;
-            ClickLoading.fillAmount = 1 - clickTimeRemaining / clickTime;
+            CasDoKliknuti -= Time.deltaTime;    // ubereme zbývající čas pro kliknutí
+            Image_NacitaniKliknuti.fillAmount = 1 - CasDoKliknuti / CasProPrepnutiTlacitka; // nastavíme načítací kolečko na správný poměr
 
-            if (clickTimeRemaining <= 0f)
-                ToggleWalk();
-        }
-
-        // Input
-        if(GvrViewer.Instance.Triggered) // trigger button
-        {
-            Debug.Log("Triggered");
-            ToggleWalk();
-            ButtonText.text = Walking ? "STOP" : "GO";
-        }
-
-        if (GvrViewer.Instance.BackButtonPressed) // back button
-        {
-            Debug.Log("Back");
-            UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
-        }
-
-        if (GvrViewer.Instance.Tilted) // tilt head (back button)
-        {
-            Debug.Log("Tilted");
-            UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
+            //  pokud už koukáme na tlačítko dostatečně dlouho
+            if (CasDoKliknuti <= 0f)
+                PrepnoutChuzi();
         }
     }
 
-    public void PointerEnter()
+    /// <summary>
+    /// Zavolat, když hráč začne koukat na tlačítko - nastavit v editoru na tlačítku
+    /// </summary>
+    public void HracPohledlNaTlacitko()
     {
-        Button.color = HighlightColor;
-        clickTimeRemaining = clickTime;
+        Image_Tlacitko.color = ZvyraznenaBarvaTlacitka; // změníme barvu tlačítka
+        CasDoKliknuti = CasProPrepnutiTlacitka;         // spustíme odpočet pro kliknutí
     }
 
-    public void PointerExit()
+    /// <summary>
+    /// Zavolat, když hráč přestane koukat na tlačítko - nastavit v editoru na tlačítku
+    /// </summary>
+    public void HracPrestalKoukatNaTlacitko()
     {
-        Button.color = NormalColor;
-        clickTimeRemaining = -1f;
-        ClickLoading.fillAmount = 0f;
-        ButtonText.text = Walking ? "STOP" : "GO";
-    }
-
-    public void CallDebug(string message)
-    {
-        Debug.Log(message);
+        Image_Tlacitko.color = NormalniBarvaTlacitka;   // změníme barvu tlačítka
+        CasDoKliknuti = -1f;                            // přerušíme odpočet pro kliknutí
+        Image_NacitaniKliknuti.fillAmount = 0f;         // nastavíme načítání kliknutí na začátek
+        Text_NaTlacitku.text = HracJde ? TextStop : TextJdi;    // nastavíme text na tlačítku podle toho, jestli hráč jde nebo ne
     }
 }
