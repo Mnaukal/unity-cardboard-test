@@ -335,19 +335,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6d01715fb80fef49a7d56a515eab729, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Walking: 0
-  speed: 0.05
-  cameraObject: {fileID: 1582965563852776}
-  ButtonText: {fileID: 114395925435124452}
-  ClickLoading: {fileID: 114779965983979428}
-  Button: {fileID: 114690932140262910}
-  NormalColor: {r: 1, g: 1, b: 1, a: 1}
-  HighlightColor: {r: 0.9862069, g: 1, b: 0, a: 1}
-  clickTime: 1
-  canvas: {fileID: 223489268808435474}
-  frequency: 2
-  amplitudeX: 0.1
-  amplitudeY: 0.1
+  HracJde: 0
+  RychlostPohybu: 2.5
+  ChuzeKliknutim: 1
+  NormalniBarvaTlacitka: {r: 1, g: 1, b: 1, a: 1}
+  ZvyraznenaBarvaTlacitka: {r: 0.9843138, g: 1, b: 0, a: 1}
+  CasProPrepnutiTlacitka: 1
+  TextStop: STOP
+  TextJdi: JDI
+  Frekvence: 2
+  VychylkaVodorovne: 0.1
+  VychylkaSvisle: 0.1
+  GameObject_Kamera: {fileID: 1582965563852776}
+  Text_NaTlacitku: {fileID: 114395925435124452}
+  Image_NacitaniKliknuti: {fileID: 114779965983979428}
+  Image_Tlacitko: {fileID: 114690932140262910}
+  Canvas: {fileID: 223489268808435474}
 --- !u!114 &114325151378573006
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -414,7 +417,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 114289206851981436}
-          m_MethodName: PointerEnter
+          m_MethodName: HracPohledlNaTlacitko
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -431,7 +434,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 114289206851981436}
-          m_MethodName: PointerExit
+          m_MethodName: HracPrestalKoukatNaTlacitko
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

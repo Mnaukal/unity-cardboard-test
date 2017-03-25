@@ -8,8 +8,11 @@ public class Walk : MonoBehaviour {
     [Header("Obecné vlastnosti")]
     public bool HracJde = false;        // true, když hráč jde; false, když stojí na místě
     public float RychlostPohybu = 1f;
+    [Tooltip("Rozejít se a zastavit kliknutím na displej (kliknutí je simulováno také při stistku magnetického tlačítka na Cardboardu)")]
+    public bool ChuzeKliknutim = true;
     [Header("Uživatelské rozhraní")]
-    public Color NormalniBarvaTlacitka, ZvyraznenaBarvaTlacitka;
+    public Color NormalniBarvaTlacitka;
+    public Color ZvyraznenaBarvaTlacitka;
     public float CasProPrepnutiTlacitka = 1f;   // jak dlouho musí uživatel koukat na tlačítko, aby ho přepl
     public string TextStop = "STOP", TextJdi = "JDI";
     [Header("Kývání hlavy")]
@@ -63,7 +66,7 @@ public class Walk : MonoBehaviour {
             // posuneme hráče o násobek směru pohybu (vektor směru násobíme rychlostí - tím se mění jen jeho velikost, ale ne směr), násobení Time.fixedDeltaTime kompenzuje to, že tento posun provádíme 50 krát za sekundu
             rigidbody.MovePosition(transform.position + smer * RychlostPohybu * Time.fixedDeltaTime);  
 
-            UslaVzdalenost += smer.magnitude * RychlostPohybu;  // zvýšíme ušlou vzdálenost
+            UslaVzdalenost += smer.magnitude * RychlostPohybu * Time.fixedDeltaTime;  // zvýšíme ušlou vzdálenost
 
             // kývání hlavy - náročnější kód
             GameObject_Kamera.transform.localPosition =     // nastavíme pozici kamery (hlavy)
@@ -86,6 +89,17 @@ public class Walk : MonoBehaviour {
             //  pokud už koukáme na tlačítko dostatečně dlouho
             if (CasDoKliknuti <= 0f)
                 PrepnoutChuzi();
+        }
+
+        // při kliknutí na displej se hráč rozejde / zastaví
+        if (ChuzeKliknutim) // pokud je toto povoleno
+        {
+            if (GvrViewer.Instance.Triggered) // hodnota z GVR SDK, která je true právě 1 snímek (frame), když uživatel klikne na displej nebo zmáčkne magnetické tlačítko
+            {
+                PrepnoutChuzi();
+                Text_NaTlacitku.text = HracJde ? TextStop : TextJdi;
+                    // nastavíme text na tlačítku podle toho, jestli hráč jde nebo ne
+            }
         }
     }
 
