@@ -53,7 +53,14 @@ public class Fly : MonoBehaviour {
 
     private void Update()
     {
-        if (GvrViewer.Instance.BackButtonPressed) // back button
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("Back");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
+        }
+
+        /*
+            if (GvrViewer.Instance.BackButtonPressed) // back button
         {
             Debug.Log("Back");
             UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
@@ -63,7 +70,7 @@ public class Fly : MonoBehaviour {
         {
             Debug.Log("Tilted");
             UnityEngine.SceneManagement.SceneManager.LoadScene("menu");
-        }
+        }*/
     }
 
     public void ScorePoint()

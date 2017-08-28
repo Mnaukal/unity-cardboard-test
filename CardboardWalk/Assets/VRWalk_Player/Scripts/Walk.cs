@@ -20,6 +20,7 @@ public class Walk : MonoBehaviour {
     public float VychylkaVodorovne, VychylkaSvisle;
     [Header("Odkazy na objekty - neměnit")]
     public GameObject GameObject_Kamera;
+    public GameObject GameObject_Hlava;
     public Text Text_NaTlacitku;
     public Image Image_NacitaniKliknuti, Image_Tlacitko;
     public Canvas Canvas;    
@@ -33,6 +34,7 @@ public class Walk : MonoBehaviour {
     {
         // získat odkaz na rigidbody
         rigidbody = GetComponent<Rigidbody>();
+        Text_NaTlacitku.text = HracJde ? TextStop : TextJdi;
     }
 
     /// <summary>
@@ -69,7 +71,7 @@ public class Walk : MonoBehaviour {
             UslaVzdalenost += smer.magnitude * RychlostPohybu * Time.fixedDeltaTime;  // zvýšíme ušlou vzdálenost
 
             // kývání hlavy - náročnější kód
-            GameObject_Kamera.transform.localPosition =     // nastavíme pozici kamery (hlavy)
+            GameObject_Hlava.transform.localPosition =     // nastavíme pozici kamery (hlavy)
                 GameObject_Kamera.transform.rotation * new Vector3(     // násobení rotací otočí vektor směrem aktuálního pohledu
                     VychylkaVodorovne * Mathf.Sin(UslaVzdalenost * Frekvence),  // aktuální vodorovná výchylka je závislá na funcki sinus ušlé vzdálenosti
                     VychylkaSvisle * Mathf.Sin(UslaVzdalenost * Frekvence * 2), // aktuální svislá výchylka je dvakrát častější než vodorovná (jeden krok na levé noze, další na pravé)
@@ -94,7 +96,7 @@ public class Walk : MonoBehaviour {
         // při kliknutí na displej se hráč rozejde / zastaví
         if (ChuzeKliknutim) // pokud je toto povoleno
         {
-            if (GvrViewer.Instance.Triggered) // hodnota z GVR SDK, která je true právě 1 snímek (frame), když uživatel klikne na displej nebo zmáčkne magnetické tlačítko
+            if ((Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) || Input.GetMouseButtonDown(0)) // je true právě 1 snímek (frame), když uživatel klikne na displej nebo zmáčkne magnetické tlačítko
             {
                 PrepnoutChuzi();
                 Text_NaTlacitku.text = HracJde ? TextStop : TextJdi;

@@ -7,9 +7,13 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/menu.unity
+    guid: 42a717654c6ab0541b3928308c8da7af
   - enabled: 1
     path: Assets/walk.unity
-  - enabled: 1
-    path: Assets/GoogleVR/DemoScenes/HeadsetDemo/DemoScene.unity
+    guid: 13c5310c432a1714a94a760731d1fa29
   - enabled: 1
     path: Assets/fly.unity
+    guid: 81bb9568913dc2f439d882b3d055a5b6
+  - enabled: 1
+    path: Assets/GoogleVR/Demos/Scenes/GVRDemo.unity
+    guid: bb36d2905dc634f1c9eecb35beecaca8
